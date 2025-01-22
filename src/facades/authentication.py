@@ -29,7 +29,7 @@ class Authentication:
         if CheckTokenExpired(token).check():
             ReleaseSession(DatabaseTypes.I, session).release()
             raise HTTPException(401, "Token expired")
-        # Refresh the token everytime user interacts with proper credentials
+        # Refresh the token every time user interacts with proper credentials
         token.updated_at = datetime.now(UTC)
         token, session = Repository(Token).update(token, session=session)
         user = token.user
