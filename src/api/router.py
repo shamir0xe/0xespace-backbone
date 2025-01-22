@@ -4,7 +4,9 @@ from fastapi import APIRouter, FastAPI
 from pylib_0xe.config.config import Config
 
 from src.orchestrators.initialize import Initialize
-from .routers.mail_router import router as auth_router
+from .routers.mail_router import router as mail_router
+from .routers.auth_router import router as auth_router
+from .routers.utils_router import router as utils_router
 
 version = Config.read("api.version")
 
@@ -25,4 +27,8 @@ router = APIRouter(
     lifespan=lifespan,
     responses={404: {"description": "Not found"}},
 )
+
 router.include_router(auth_router)
+router.include_router(mail_router)
+router.include_router(utils_router)
+
