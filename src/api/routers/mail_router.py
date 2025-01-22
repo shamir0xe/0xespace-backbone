@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import APIRouter, FastAPI, HTTPException, Request
 
+from src.facades.email_facade import EmailFacade
 from src.decorators.auth import auth
 from src.types.exception_types import ExceptionTypes
 from src.types.api.server_response import ServerResponse
@@ -32,5 +33,5 @@ async def send_mail(
 ) -> ServerResponse:
     if not user_id:
         raise HTTPException(401, ExceptionTypes.AUTH_REQUIRED.value)
-    # TODO: imp
+    EmailFacade().send(email, title, body)
     return ServerResponse()
