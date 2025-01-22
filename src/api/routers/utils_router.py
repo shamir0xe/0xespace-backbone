@@ -3,6 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 from typing import Optional
 from fastapi import APIRouter, FastAPI, HTTPException, Request
+from pylib_0xe.config.config import Config
 from pylib_0xe.database.actions.release_session import ReleaseSession
 from pylib_0xe.types.database_types import DatabaseTypes
 
@@ -35,11 +36,12 @@ router = APIRouter(
 async def ping(request: Request, user_id: Optional[str] = None) -> PingResponse:
     if not user_id:
         raise HTTPException(401, ExceptionTypes.AUTH_REQUIRED.value)
-    user, session = Repository(User).read_by_id(user_id, db_session_keep_ailve=True)
+    user, session = Repository(User).read_by_id(user_id, db_session_keep_alive=True)
     try:
         response = PingResponse(
             remaining_time=round(
-                (
+                Config.read("api.token_timeout")
+                + (
                     datetime.now(UTC) - user.token.updated_at.replace(tzinfo=UTC)
                 ).total_seconds()
             )
