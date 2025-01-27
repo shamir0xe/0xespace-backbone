@@ -2,6 +2,10 @@ import subprocess
 import logging
 from pylib_0xe.config.config import Config
 
+from src.orchestrators.readers.template_reader import TemplateReader
+from src.types.email_templates import EmailTemplates
+from src.types.exception_types import ExceptionTypes
+
 LOGGER = logging.getLogger(__name__)
 
 
@@ -14,8 +18,10 @@ class EmailFacade:
             Exception: If the subprocess call fails or times out.
         """
         command = Config.read_env("email.send-command")
-        command = command.format(email=email)
-        command = command.format(title=title)
+        command = command.replace("{email}", email)
+        command = command.replace("{title}", title)
+        LOGGER.info(f"Executing this: {command}")
+
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
@@ -35,3 +41,23 @@ class EmailFacade:
             return
         LOGGER.info(f"err: {stderr}")
         LOGGER.info(f"out: {stdout}")
+
+    def create_template(self, email_template: EmailTemplates, **kwargs) -> str:
+        body = ""
+        if email_template is EmailTemplates.VERIFICATION:
+            if not ("code" in kwargs and "user_id" in kwargs and "username" in kwargs):
+                raise Exception(ExceptionTypes.ARGUMENTS_INVALID)
+            code = kwargs["code"]
+            user_id = kwargs["user_id"]
+            username = kwargs["username"]
+            validating_hash = "#"
+
+            body = TemplateReader.read("email.verification_template", "html")
+            body = body.replace("{code}", code)
+            body = body.replace("{user_id}", user_id)
+            body = body.replace("{username}", username)
+            body = body.replace("{validating_hash}", validating_hash)
+            LOGGER.info(body)
+        else:
+            raise Exception(ExceptionTypes.EMAIL_TEMPLATE_INVALID)
+        return body

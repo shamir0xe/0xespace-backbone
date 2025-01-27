@@ -8,7 +8,7 @@ from src.facades.email_facade import EmailFacade
 from src.decorators.auth import auth
 from src.types.exception_types import ExceptionTypes
 from src.types.api.server_response import ServerResponse
-from types.email_templates import EmailTemplates
+from src.types.email_templates import EmailTemplates
 
 
 LOGGER = logging.getLogger(__name__)
@@ -49,10 +49,9 @@ async def send_verification(
     request: Request,
     user_id: Optional[str] = None,
 ):
-    # asdfkasdf
     if not user_id:
         raise HTTPException(401, ExceptionTypes.AUTH_REQUIRED.value)
-    title = Config.read("email.verification.title", base_path="email")
+    title = Config.read("email.verification.title")
     body = EmailFacade().create_template(
         EmailTemplates.VERIFICATION,
         code=code,
