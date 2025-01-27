@@ -1,7 +1,7 @@
 import logging
 from contextlib import asynccontextmanager
 from typing import Optional
-from fastapi import APIRouter, FastAPI, HTTPException, Request
+from fastapi import APIRouter, Body, FastAPI, HTTPException, Request
 from pylib_0xe.config.config import Config
 
 from src.facades.email_facade import EmailFacade
@@ -31,7 +31,11 @@ router = APIRouter(
 @router.post("/send-mail")
 @auth()
 async def send_mail(
-    email: str, title: str, body: str, request: Request, user_id: Optional[str] = None
+    email: str,
+    title: str,
+    request: Request,
+    user_id: Optional[str] = None,
+    body: str = Body(...),
 ) -> ServerResponse:
     if not user_id:
         raise HTTPException(401, ExceptionTypes.AUTH_REQUIRED.value)
