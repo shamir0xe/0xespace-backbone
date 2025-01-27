@@ -10,3 +10,5 @@ class ExceptionTypes(Enum):
     USERNAME_NOT_FOUND = "username_not_found"
     EMAIL_NOT_FOUND = "email_not_found"
     AUTH_HEADER_INVALID = "auth_header_invalid"
+    EMAIL_TEMPLATE_INVALID = "email_template_invalid"
+    ARGUMENTS_INVALID = "arguments_invalid"
