@@ -20,6 +20,7 @@ class EmailFacade:
         command = Config.read_env("email.send-command")
         command = command.replace("{email}", email)
         command = command.replace("{title}", title)
+        LOGGER.info(f"body is:\n{body}")
         LOGGER.info(f"Executing this: {command}")
 
         process = subprocess.Popen(
@@ -30,15 +31,19 @@ class EmailFacade:
             text=True,
             shell=True,
         )
+        stderr, stdout = "", ""
         try:
             stdout, stderr = process.communicate(
                 input=body, timeout=Config.read_env("email.timeout")
             )
             if process.returncode != 0:
                 raise Exception(f"Error sending email: {stderr.strip()}")
-        except Exception:
-            # TODO: Add something for error
-            return
+        except subprocess.TimeoutExpired:
+            process.kill()
+            LOGGER.error("Email sending process timed out")
+        except Exception as e:
+            LOGGER.error(f"Failed to send email: {e}")
+
         LOGGER.info(f"err: {stderr}")
         LOGGER.info(f"out: {stdout}")
 
